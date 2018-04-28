@@ -41,7 +41,10 @@ def extract_number(fieldValue):
     return fieldNumbers[0]
 
 def housing_conservation_dist(FieldStr):
-    return extract_number(FieldStr.replace('.',' '))
+    try:
+        return extract_number(FieldStr.replace('.',' '))
+    except IndexError:
+        return None #no housing district listed
 
 def dollars_to_numbers(FieldStr):
     FieldStr = FieldValueCleaner(FieldStr)
@@ -120,5 +123,18 @@ def process_row(row):
 
 
 
-
+if __name__=='__main__':
+    import pandas as pd
+    from time import sleep
+    hs = pd.read_csv('housingData1500.csv',encoding='latin1')
+    master_dict = dict()
+    bad_parcels = list()
+    for idx,row in hs.iterrows():
+        if str(row.parcel_id) in master_dict.keys() or str(row.parcel_id) in bad_parcels:
+            continue
+        try:
+            master_dict.update(process_row(row))
+        except IndexError:
+            bad_parcels.append(str(row.parcel_id))
+        sleep(.2)
 
