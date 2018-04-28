@@ -48,7 +48,7 @@ def print_to_csv(nodes):
 # read data from a csv file to populate the list of nodes
 def read_from_csv(file):
     nodes_list = []
-    with open(file) as csvfile:
+    with open(file,encoding='utf8',errors='ignore') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
             try:
