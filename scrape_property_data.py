@@ -115,8 +115,8 @@ def get_page(parcel_id):
     return urllib.request.urlopen(url)
 
 
-def process_row(row):
-    pid = str(row.parcel_id)
+def process_row(pid):
+    pid = str(pid)
     page = get_page(pid)
     data = parse_page(page)
     return {pid:data}
@@ -124,17 +124,21 @@ def process_row(row):
 
 
 if __name__=='__main__':
-    import pandas as pd
+    import json
     from time import sleep
-    hs = pd.read_csv('housingData1500.csv',encoding='latin1')
+    
+    with open('data/lra.geojson') as f:
+        jsonfile = json.load(f)
+        parcelIDlist = [prop['properties']['ParcelID'] for prop in jsonfile['features']]
+    
     master_dict = dict()
     bad_parcels = list()
-    for idx,row in hs.iterrows():
-        if str(row.parcel_id) in master_dict.keys() or str(row.parcel_id) in bad_parcels:
+    for parcel_id in parcelIDlist:
+        if str(parcel_id) in master_dict.keys() or str(parcel_id) in bad_parcels:
             continue
         try:
-            master_dict.update(process_row(row))
+            master_dict.update(process_row(parcel_id))
         except IndexError:
-            bad_parcels.append(str(row.parcel_id))
+            bad_parcels.append(str(parcel_id))
         sleep(.2)
 
